@@ -27,11 +27,6 @@ class="bg-slate-900 text-white w-64 p-5 space-y-6 fixed inset-y-0 left-0 z-50 tr
             📦 <span class="menu-text">Orders</span>
         </a>
 
-        <!-- 🆕 ORDER DETAILS -->
-        <a href="order_details.php" class="flex items-center gap-3 px-4 py-2 rounded hover:bg-slate-700">
-            📄 <span class="menu-text">Order Details</span>
-        </a>
-
         <a href="delivery.php" class="flex items-center gap-3 px-4 py-2 rounded hover:bg-slate-700">
             🚚 <span class="menu-text">Delivery</span>
         </a>
