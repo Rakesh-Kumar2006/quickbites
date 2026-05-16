@@ -2,8 +2,12 @@
 include("db.php");
 include("assets/navbar.php");
 
-// ✅ ADD THIS (timezone fix)
+// ✅ TIMEZONE FIX
 date_default_timezone_set('Asia/Kolkata');
+
+// ✅ SEARCH + FILTER
+$type = $_GET['type'] ?? '';
+$search = $_GET['search'] ?? '';
 ?>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -20,6 +24,7 @@ date_default_timezone_set('Asia/Kolkata');
 
 <!-- TEXT -->
 <div>
+
     <h1 class="text-4xl font-bold mb-4">
         Fresh flavors. Every craving.
     </h1>
@@ -31,8 +36,11 @@ date_default_timezone_set('Asia/Kolkata');
 
     <a href="#restaurants"
     class="bg-orange-500 px-6 py-3 rounded-lg text-white font-semibold hover:bg-orange-600">
+
         Order your food →
+
     </a>
+
 </div>
 
 </div>
@@ -68,14 +76,19 @@ class="h-40 w-full object-cover">
 
 <div class="p-4 text-center">
 
-<h3 class="font-bold text-lg"><?php echo $cat[0]; ?></h3>
+<h3 class="font-bold text-lg">
+<?php echo $cat[0]; ?>
+</h3>
 
 <p class="text-sm text-gray-500 mb-3">
 Delicious <?php echo strtolower($cat[0]); ?> items
 </p>
+
 <a href="menu.php?search=<?php echo $cat[0]; ?>"
 class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 inline-block">
+
 Explore
+
 </a>
 
 </div>
@@ -90,79 +103,153 @@ Explore
 <!-- RESTAURANTS -->
 <div id="restaurants" class="max-w-7xl mx-auto px-6 py-12">
 
-<h2 class="text-2xl font-bold mb-6">🍽 Popular Restaurants</h2>
-
-<?php
-$type = $_GET['type'] ?? '';
-?>
+<h2 class="text-2xl font-bold mb-6">
+🍽 Popular Restaurants
+</h2>
 
 <!-- FILTER BUTTONS -->
 <div class="flex gap-3 mb-6">
 
 <a href="home.php#restaurants"
 class="px-4 py-2 rounded <?php echo ($type==''?'bg-black text-white':'bg-gray-300'); ?>">
+
 All
+
 </a>
 
 <a href="home.php?type=veg#restaurants"
 class="px-4 py-2 rounded <?php echo ($type=='veg'?'bg-green-600 text-white':'bg-green-200'); ?>">
+
 🟢 Veg
+
 </a>
 
 <a href="home.php?type=nonveg#restaurants"
 class="px-4 py-2 rounded <?php echo ($type=='nonveg'?'bg-red-600 text-white':'bg-red-200'); ?>">
+
 🔴 Non-Veg
+
 </a>
 
 <a href="home.php?type=both#restaurants"
 class="px-4 py-2 rounded <?php echo ($type=='both'?'bg-yellow-500 text-white':'bg-yellow-200'); ?>">
+
 🟡 Both
+
 </a>
 
 </div>
 
+<!-- SEARCH RESULT -->
+<?php if(!empty($search)){ ?>
+
+<div class="mb-6">
+
+<h2 class="text-2xl font-bold text-gray-800">
+
+Search Results for:
+<span class="text-orange-500">
+"<?php echo htmlspecialchars($search); ?>"
+</span>
+
+</h2>
+
+</div>
+
+<?php } ?>
+
 <div class="grid md:grid-cols-3 gap-6">
 
 <?php
-$query = "SELECT * FROM admin_restaurants";
 
+$query = "SELECT * FROM admin_restaurants WHERE 1";
+
+// SEARCH FILTER
+if(!empty($search)){
+
+    $search = mysqli_real_escape_string($conn, $search);
+
+    $query .= " AND (
+        name LIKE '%$search%'
+        OR description LIKE '%$search%'
+        OR category LIKE '%$search%'
+    )";
+}
+
+// CATEGORY FILTER
 if($type != ''){
+
     if($type == 'veg'){
-        $query .= " WHERE category='veg' OR category='both'";
+
+        $query .= " AND (category='veg' OR category='both')";
+
     }
     elseif($type == 'nonveg'){
-        $query .= " WHERE category='nonveg' OR category='both'";
+
+        $query .= " AND (category='nonveg' OR category='both')";
+
     }
     else{
-        $query .= " WHERE category='both'";
+
+        $query .= " AND category='both'";
     }
 }
 
+// ORDER
+$query .= " ORDER BY hotel_id DESC";
+
 $q = mysqli_query($conn, $query);
 
-while($r = mysqli_fetch_assoc($q)){
+// NO RESULT
+if(mysqli_num_rows($q) == 0){
+?>
 
-    // ✅ FIXED TIME LOGIC ONLY
+<div class="col-span-3 text-center py-20">
+
+<h2 class="text-3xl font-bold text-gray-700 mb-3">
+No restaurants found 🍽
+</h2>
+
+<p class="text-gray-500">
+Try another search keyword
+</p>
+
+</div>
+
+<?php } ?>
+
+<?php while($r = mysqli_fetch_assoc($q)){
+
+    // TIME LOGIC
     $current_time = strtotime(date("H:i"));
 
     $open  = strtotime(date("H:i", strtotime($r['open_time'])));
     $close = strtotime(date("H:i", strtotime($r['close_time'])));
 
     if($open < $close){
+
         $isOpen = ($current_time >= $open && $current_time <= $close);
+
     } else {
+
         $isOpen = ($current_time >= $open || $current_time <= $close);
     }
 
     // CATEGORY BADGE
     $cat = strtolower($r['category']);
+
     if($cat == 'veg'){
+
         $badge = "<span class='bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold'>🟢 Veg</span>";
+
     }
     elseif($cat == 'nonveg'){
+
         $badge = "<span class='bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-semibold'>🔴 Non-Veg</span>";
+
     }
     else{
+
         $badge = "<span class='bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-semibold'>🟡 Both</span>";
     }
 ?>
@@ -178,8 +265,13 @@ class="h-48 w-full object-cover">
 <div class="p-4">
 
 <div class="flex justify-between items-center mb-1">
-<h3 class="font-bold text-lg"><?php echo $r['name']; ?></h3>
+
+<h3 class="font-bold text-lg">
+<?php echo $r['name']; ?>
+</h3>
+
 <?php echo $badge; ?>
+
 </div>
 
 <p class="text-sm text-gray-500 line-clamp-2">
@@ -193,7 +285,9 @@ class="h-48 w-full object-cover">
 </span>
 
 <span class="<?php echo $isOpen ? 'text-green-600 font-semibold' : 'text-red-500 font-semibold'; ?>">
+
 <?php echo $isOpen ? '🟢 Open' : '🔴 Closed'; ?>
+
 </span>
 
 </div>
