@@ -4,15 +4,16 @@
 
         <!-- Navigation Links -->
         <div class="flex justify-center space-x-6 text-sm">
-            <a href="index.php" class="hover:text-orange-400">Home</a>
+            <a href="home.php" class="hover:text-orange-400">Home</a>
             <a href="menu.php" class="hover:text-orange-400">Menu</a>
             <a href="contact.php" class="hover:text-orange-400">Contact</a>
             <a href="profile.php" class="hover:text-orange-400">Profile</a>
+             <a href="about.php" class="hover:text-orange-400">About US</a>
         </div>
 
         <!-- Contact Info -->
         <div class="text-sm text-gray-300">
-            📍 Ahmedabad, Gujarat | 📞 +91 98986 06330 | ✉ quickbites@gmail.com
+            📍 Jamnagar, Gujarat | 📞 +91 98986 06330 | ✉ quickbites@gmail.com
         </div>
 
         <!-- Copyright -->

@@ -125,9 +125,6 @@ class="border p-2 rounded">
 
 </form>
 
-<button onclick="location.reload()" class="bg-gray-500 text-white px-4 rounded">
-🔄 Refresh
-</button>
 
 </div>
 
@@ -232,10 +229,7 @@ function updateStatus(id, status){
     });
 }
 
-// 🔥 AUTO REFRESH EVERY 10 SEC
-setInterval(() => {
-    location.reload();
-}, 10000);
+
 </script>
 
 <script src="assets/js/sidebar.js" defer></script>

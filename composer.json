@@ -1,6 +1,7 @@
 {
     "require": {
         "razorpay/razorpay": "^2.9",
-        "phpmailer/phpmailer": "^7.0"
+        "phpmailer/phpmailer": "^7.0",
+        "twilio/sdk": "^8.11"
     }
 }
