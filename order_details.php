@@ -10,6 +10,20 @@ if(!$order_id){
     die("Invalid Order ID");
 }
 
+// CANCEL ORDER
+if(isset($_GET['cancel'])){
+
+    mysqli_query($conn,"
+    UPDATE orders
+    SET order_status='cancelled'
+    WHERE order_id='$order_id'
+    AND order_status='pending'
+    ");
+
+    header("Location: order_details.php?id=".$order_id);
+    exit();
+}
+
 // ORDER DETAILS
 $order = mysqli_fetch_assoc(mysqli_query($conn,"
 SELECT * FROM orders
@@ -55,6 +69,36 @@ if(!$delivery){
 
     ];
 }
+
+$status = strtolower($order['order_status']);
+
+$statusBadge = "bg-gray-100 text-gray-600";
+
+if($status == 'pending'){
+
+    $statusBadge = "bg-yellow-100 text-yellow-700";
+
+}
+elseif($status == 'preparing'){
+
+    $statusBadge = "bg-blue-100 text-blue-700";
+
+}
+elseif($status == 'out_for_delivery'){
+
+    $statusBadge = "bg-purple-100 text-purple-700";
+
+}
+elseif($status == 'delivered'){
+
+    $statusBadge = "bg-green-100 text-green-700";
+
+}
+elseif($status == 'cancelled'){
+
+    $statusBadge = "bg-red-100 text-red-700";
+
+}
 ?>
 
 <!DOCTYPE html>
@@ -90,26 +134,62 @@ Track your order in real-time
 
 </div>
 
-<div class="bg-orange-100 text-orange-600 px-5 py-3 rounded-2xl font-bold text-lg">
+<div class="px-5 py-3 rounded-2xl font-bold text-lg <?php echo $statusBadge; ?>">
 
-<?php echo ucfirst($order['order_status']); ?>
-
-</div>
+<?php echo ucfirst(str_replace('_',' ',$order['order_status'])); ?>
 
 </div>
 
 </div>
+
+</div>
+
+<!-- CANCEL BUTTON -->
+<?php if($status == 'pending'){ ?>
+
+<div class="mb-8 text-right">
+
+<a href="order_details.php?id=<?php echo $order_id; ?>&cancel=1"
+onclick="return confirm('Are you sure you want to cancel this order?')"
+class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg transition">
+
+Cancel Order ❌
+
+</a>
+
+</div>
+
+<?php } ?>
+
+<!-- CANCEL STATUS -->
+<?php if($status == 'cancelled'){ ?>
+
+<div class="bg-red-100 border border-red-300 text-red-700 p-6 rounded-3xl shadow mb-8 text-center">
+
+<div class="text-6xl mb-4">
+❌
+</div>
+
+<h2 class="text-3xl font-bold mb-3">
+Order Cancelled
+</h2>
+
+<p class="text-lg font-semibold">
+This order has been cancelled successfully.
+</p>
+
+</div>
+
+<?php } ?>
 
 <!-- STATUS TRACKER -->
+<?php if($status != 'cancelled'){ ?>
+
 <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-orange-100">
 
 <h2 class="text-2xl font-bold text-gray-800 mb-8">
 🚚 Order Status
 </h2>
-
-<?php
-$status = strtolower($order['order_status']);
-?>
 
 <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
 
@@ -119,7 +199,7 @@ $status = strtolower($order['order_status']);
 <?php echo (
 $status == 'pending' ||
 $status == 'preparing' ||
-$status == 'out for delivery' ||
+$status == 'out_for_delivery' ||
 $status == 'delivered'
 )
 
@@ -144,7 +224,7 @@ Pending
 
 <?php echo (
 $status == 'preparing' ||
-$status == 'out for delivery' ||
+$status == 'out_for_delivery' ||
 $status == 'delivered'
 )
 
@@ -168,7 +248,7 @@ Preparing
 <div class="rounded-2xl p-5 text-center border-2
 
 <?php echo (
-$status == 'out for delivery' ||
+$status == 'out_for_delivery' ||
 $status == 'delivered'
 )
 
@@ -208,12 +288,37 @@ $status == 'delivered'
 <p class="font-bold">
 Delivered
 </p>
+</div>
+
+<!-- CANCELLED -->
+<div class="rounded-2xl p-5 text-center border-2
+
+<?php echo (
+$status == 'cancelled'
+)
+
+? 'bg-red-50 border-red-500 text-red-600 shadow-lg'
+
+: 'bg-gray-50 border-gray-200 text-gray-400';
+
+?>">
+
+<div class="text-4xl mb-2">
+❌
+</div>
+
+<p class="font-bold">
+Cancelled
+</p>
 
 </div>
 
 </div>
 
 </div>
+
+
+<?php } ?>
 
 <!-- DELIVERY PARTNER -->
 <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-orange-100">
@@ -258,7 +363,7 @@ Delivery Status
 </p>
 
 <h3 class="text-2xl font-bold text-blue-600">
-<?php echo ucfirst($delivery['status']); ?>
+<?php echo ucfirst(str_replace('_',' ',$delivery['status'])); ?>
 </h3>
 
 </div>
@@ -278,13 +383,9 @@ Delivery Status
 
 <?php
 
-$total = 0;
-
 while($i = mysqli_fetch_assoc($items)){
 
     $sub = $i['price'] * $i['quantity'];
-
-    $total += $sub;
 ?>
 
 <div class="flex justify-between items-center bg-gray-50 p-5 rounded-2xl">

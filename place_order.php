@@ -13,10 +13,10 @@ if(!$user_id){
 
 // ✅ SAFE INPUTS
 $address = mysqli_real_escape_string($conn, $_POST['address'] ?? '');
-$payment = mysqli_real_escape_string($conn, $_POST['payment'] ?? 'COD');
+$payment = strtolower(mysqli_real_escape_string($conn, $_POST['payment'] ?? 'cod'));
 
 // ✅ PAYMENT STATUS
-$payment_status = ($payment == 'ONLINE') ? 'paid' : 'pending';
+$payment_status = ($payment == 'online') ? 'paid' : 'pending';
 
 // ✅ FETCH CART
 $cart = mysqli_query($conn,"
@@ -79,6 +79,31 @@ VALUES(
 
 // ✅ ORDER ID
 $order_id = mysqli_insert_id($conn);
+
+// ✅ INSERT PAYMENT RECORD
+$transaction_id = "";
+
+if($payment == 'online'){
+
+    $transaction_id = "ONLINE_TXN_" . time();
+}
+
+mysqli_query($conn,"
+INSERT INTO payments(
+    order_id,
+    payment_method,
+    payment_status,
+    transaction_id,
+    payment_date
+)
+VALUES(
+    '$order_id',
+    '$payment',
+    '$payment_status',
+    '$transaction_id',
+    NOW()
+)
+");
 
 // 🔁 FETCH CART AGAIN
 $cart = mysqli_query($conn,"

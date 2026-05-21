@@ -43,7 +43,7 @@ if($user_id){
 <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
 
     <!-- LOGO -->
-    <a href="index.php"
+    <a href="home.php"
     class="flex items-center gap-3 text-2xl font-extrabold text-orange-400">
 
         <?php if(!empty($settings['logo'])){ ?>
@@ -86,7 +86,6 @@ if($user_id){
     <!-- RIGHT -->
     <div class="flex items-center gap-5">
 
-      
         <!-- CART -->
         <a href="cart.php"
         class="relative text-2xl hover:scale-110 transition">
@@ -164,6 +163,13 @@ if($user_id){
                 class="block px-5 py-3 hover:bg-gray-100 transition">
 
                     📦 Orders
+
+                </a>
+
+                <a href="payment_history.php"
+                class="block px-5 py-3 hover:bg-gray-100 transition">
+
+                    💳 Payments
 
                 </a>
 
@@ -289,6 +295,13 @@ class="hidden md:hidden bg-black border-t border-gray-800 px-6 py-5 space-y-4 te
     class="block hover:text-orange-400 transition">
 
         📦 Orders
+
+    </a>
+
+    <a href="payment_history.php"
+    class="block hover:text-orange-400 transition">
+
+        💳 Payments
 
     </a>
 

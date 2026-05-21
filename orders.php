@@ -91,6 +91,9 @@ Browse Restaurants
 <!-- ORDERS -->
 <div class="space-y-6">
 
+<!-- USER ORDER SERIAL -->
+<?php $display_id = 1; ?>
+
 <?php while($o = mysqli_fetch_assoc($orders)){ ?>
 
 <?php
@@ -100,19 +103,29 @@ $status = strtolower($o['order_status']);
 $statusColor = "bg-gray-100 text-gray-600";
 
 if($status == 'pending'){
+
     $statusColor = "bg-yellow-100 text-yellow-700";
+
 }
 elseif($status == 'preparing'){
+
     $statusColor = "bg-blue-100 text-blue-700";
+
 }
-elseif($status == 'out for delivery'){
+elseif($status == 'out_for_delivery'){
+
     $statusColor = "bg-purple-100 text-purple-700";
+
 }
 elseif($status == 'delivered'){
+
     $statusColor = "bg-green-100 text-green-700";
+
 }
 elseif($status == 'cancelled'){
+
     $statusColor = "bg-red-100 text-red-700";
+
 }
 
 ?>
@@ -129,12 +142,12 @@ elseif($status == 'cancelled'){
 <div class="flex items-center gap-3 mb-3">
 
 <h2 class="text-2xl font-bold text-gray-800">
-Order #<?php echo $o['order_id']; ?>
+Order #<?php echo $display_id++; ?>
 </h2>
 
 <span class="px-4 py-2 rounded-full text-sm font-bold <?php echo $statusColor; ?>">
 
-<?php echo ucfirst($o['order_status']); ?>
+<?php echo ucfirst(str_replace('_',' ',$o['order_status'])); ?>
 
 </span>
 
@@ -177,6 +190,7 @@ Payment:
 <!-- BOTTOM -->
 <div class="mt-8 flex flex-col md:flex-row gap-4">
 
+<!-- VIEW DETAILS -->
 <a href="order_details.php?id=<?php echo $o['order_id']; ?>"
 class="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-center py-4 rounded-2xl font-bold shadow-lg transition">
 
@@ -184,12 +198,26 @@ View Order Details →
 
 </a>
 
-<?php if($status != 'delivered'){ ?>
+<!-- TRACK -->
+<?php if($status != 'delivered' && $status != 'cancelled'){ ?>
 
 <a href="order_details.php?id=<?php echo $o['order_id']; ?>"
 class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-center py-4 rounded-2xl font-bold transition">
 
 Track Order 🚚
+
+</a>
+
+<?php } ?>
+
+<!-- CANCEL -->
+<?php if($status == 'pending'){ ?>
+
+<a href="order_details.php?id=<?php echo $o['order_id']; ?>&cancel=1"
+onclick="return confirm('Are you sure you want to cancel this order?')"
+class="flex-1 bg-red-500 hover:bg-red-600 text-white text-center py-4 rounded-2xl font-bold shadow-lg transition">
+
+Cancel Order ❌
 
 </a>
 
